@@ -1,0 +1,127 @@
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+  <div style="flex: 1; text-align: center;">
+    <h2 style="margin-bottom: 10px; display: inline-block;">📚 Borrow History</h2>
+  </div>
+  <a href="{% url 'admin_dashboard' %}" style="background: linear-gradient(to right, #3b82f6, #764ba2); color: white; font-weight: 600; font-size: 1rem; padding: 10px 28px; border-radius: 10px; box-shadow: 0 4px 16px rgba(59,130,246,0.10); text-decoration: none; transition: background 0.3s; margin-left: 20px;"
+     onmouseover="this.style.background='linear-gradient(to right, #2563eb, #6d28d9)'" onmouseout="this.style.background='linear-gradient(to right, #3b82f6, #764ba2)'">
+    ← Back to Dashboard
+  </a>
+</div>
+
+<!-- Filter Form -->
+<form method="get" style="margin-bottom: 20px;">
+  <label>📅 Month:</label>
+  <select name="month">
+    {% for m, mname in months %}
+    <option value="{{ m }}" {% if m == selected_month %}selected{% endif %}>{{ mname }}</option>
+    {% endfor %}
+  </select>
+
+  <label>📆 Year:</label>
+  <select name="year">
+    {% for y in years %}
+    <option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>{{ y }}</option>
+    {% endfor %}
+  </select>
+
+  <button type="submit" style="background: linear-gradient(to right, #3b82f6, #764ba2); color: white; font-weight: 600; font-size: 1rem; padding: 8px 28px; border-radius: 8px; border: none; box-shadow: 0 2px 8px rgba(59,130,246,0.10); text-decoration: none; transition: background 0.3s; margin-left: 10px; cursor: pointer;"
+    onmouseover="this.style.background='linear-gradient(to right, #2563eb, #6d28d9)'" onmouseout="this.style.background='linear-gradient(to right, #3b82f6, #764ba2)'">
+    🔍 Filter
+  </button>
+</form>
+ </center>
+
+ <br>
+ <br>
+ <br>
+ 
+<!-- Charts -->
+<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">
+  <div style="width: 48%;">
+    <canvas id="popularBooksChart" height="250"></canvas>
+  </div>
+  <div style="width: 48%;">
+    <canvas id="monthlyTrendChart" height="250"></canvas>
+  </div>
+</div>
+
+<!-- Borrow History Table -->
+<table border="1" style="width: 100%; border-collapse: collapse; margin-top: 30px;">
+  <thead style="background-color: #f9f9f9;">
+    <tr>
+      <th style="padding: 8px;">👤 Visitor</th>
+      <th style="padding: 8px;">📖 Book</th>
+      <th style="padding: 8px;">📥 Borrowed</th>
+      <th style="padding: 8px;">📤 Returned</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for h in history %}
+    <tr>
+      <td style="padding: 6px;">{{ h.visitor.name }}</td>
+      <td style="padding: 6px;">{{ h.book.title }}</td>
+      <td style="padding: 6px;">{{ h.borrow_date }}</td>
+      <td style="padding: 6px;">{{ h.return_date|default:"❌ Not returned" }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Bar Chart: Popular Books
+  new Chart(document.getElementById('popularBooksChart'), {
+    type: 'bar',
+    data: {
+      labels: [{% for b in popular_books %}'{{ b.title }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+      datasets: [{
+        label: 'Top Borrowed Books - {{ selected_month }}/{{ selected_year }}',
+        data: [{% for b in popular_books %}{{ b.count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+        backgroundColor: '#3498db',
+        borderRadius: 5
+      }]
+    },
+    options: {
+      plugins: {
+        title: {
+          display: true,
+          text: '📘 Most Borrowed Books',
+          font: { size: 16 }
+        },
+        legend: { display: false }
+      },
+      responsive: true,
+      maintainAspectRatio: false
+    }
+  });
+
+  // Line Chart: Monthly Borrow Trend
+  new Chart(document.getElementById('monthlyTrendChart'), {
+    type: 'line',
+    data: {
+      labels: {{ trend_labels|safe }},
+      datasets: [{
+        label: 'Borrows in {{ selected_year }}',
+        data: {{ trend_data|safe }},
+        fill: true,
+        borderColor: '#2ecc71',
+        backgroundColor: 'rgba(46, 204, 113, 0.2)',
+        tension: 0.3
+      }]
+    },
+    options: {
+      plugins: {
+        title: {
+          display: true,
+          text: '📈 Borrow Trend Over Months',
+          font: { size: 16 }
+        }
+      },
+      responsive: true,
+      maintainAspectRatio: false
+    }
+  });
+</script>
+{% endblock %}
