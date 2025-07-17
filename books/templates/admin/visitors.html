@@ -86,6 +86,34 @@
         </tbody>
       </table>
     </div>
+    <!-- Spam Visitors Section -->
+    <h3 class="text-xl font-bold text-pink-400 mt-12 mb-4">🚫 Spam Visitors</h3>
+    <div class="overflow-x-auto">
+      <table class="w-full dark-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Mobile</th>
+            <th>Role</th>
+            <th>Registered</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for v in spam_visitors %}
+          <tr class="bg-pink-950/60">
+            <td>{{ v.name }}</td>
+            <td>{{ v.mobile }}</td>
+            <td>{{ v.role }}</td>
+            <td>{{ v.created_at|date:"Y-m-d" }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="4" class="text-center text-pink-300 py-4">No spam visitors found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

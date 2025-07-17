@@ -384,6 +384,7 @@ def view_visitors(request):
     average_score = round(visitors.aggregate(avg=Avg("score"))["avg"] or 0)
     top_readers = visitors.filter(role='user').order_by("-score")[:5]
     fake_users = [v for v in visitors.filter(role='user') if check_if_fake_user(v.name, v.email, v.address, v.age, v.score, v.visit_count)]
+    spam_visitors = Visitor.objects.filter(name="abcde")
     return render(request, "admin/visitors.html", {
         "visitors": visitors,
         "user_count": user_count,
@@ -393,6 +394,7 @@ def view_visitors(request):
         "average_score": average_score,
         "top_readers": top_readers,
         "fake_users": fake_users,
+        "spam_visitors": spam_visitors,
     })
 
 
